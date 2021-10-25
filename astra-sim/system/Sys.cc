@@ -469,7 +469,7 @@ int Sys::sim_send(
     sim_request* request,
     void (*msg_handler)(void* fun_arg),
     void* fun_arg) {
-  if (fun_arg == nullptr) {
+  if (false && fun_arg == nullptr && delay==0) {
     SendPacketEventHandlerData* fun_arg_tmp =
         new SendPacketEventHandlerData(NI->rank, dst, tag);
     fun_arg = (void*)fun_arg_tmp;
@@ -1791,8 +1791,8 @@ void Sys::handleEvent(void* arg) {
     //<<sendhd->nodeId<<" at time: "<<Sys::boostedTick()<<" ,Tag:
     //"<<sendhd->tag<<std::endl;
     int rank = sendhd->nodeId;
-    if (pending_sends[rank][std::make_pair(sendhd->receiverNodeId, sendhd->tag)]
-            .size() == 0) {
+    if (pending_sends[rank].find(std::make_pair(sendhd->receiverNodeId, sendhd->tag))==pending_sends[rank].end() ||
+            pending_sends[rank][std::make_pair(sendhd->receiverNodeId, sendhd->tag)].size() == 0) {
       is_there_pending_sends[rank][std::make_pair(
           sendhd->receiverNodeId, sendhd->tag)] = false;
       /*if(rank==1) {
