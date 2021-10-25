@@ -53,7 +53,7 @@ $ git submodule update
 #### Instructions for compiling & running NS3 as the network simulator
 Coming Soon!
 
-NOTE: The on-screen reported delays (no matter what backend is used) after the end of simulation are in cycles while the delays inside the csv files are in terms of microseconds.
+**NOTE:** The on-screen reported delays (no matter what backend is used) after the end of simulation are in cycles (default cycle latency is 1 ns) while the delays inside the csv files are in terms of microseconds.
 
 #### ASTRA-SIM Binary Command Line Options
 When running the binary file (no matter what backend is used), the following options may be passed to the binary file (see example scripts):
