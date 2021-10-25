@@ -222,8 +222,8 @@ Sys::Sys(
   active_first_phase = 100000000;
   if (id == 0) {
     std::cout
-        << "The final active chunks per dimension after allocating to queues is: "
-        << active_first_phase << std::endl;
+        << "The final active chunks per dimension 1 after allocating to queues is: "
+        << concurrent_streams * queues_per_dim[0] << std::endl;
   }
   max_running = 100000000;
   scheduler_unit = new SchedulerUnit(
@@ -484,6 +484,9 @@ int Sys::sim_send(
         std::list<SimSendCaller*> tmp;
         pending_sends[NI->rank][std::make_pair(dst, tag)] = tmp;
       }
+      // std::cout<<"id "<<id<<" can not send to id: "<<dst<<" because of
+      // pending send, tag: "
+      //<<tag<<" at time: "<<Sys::boostedTick()<<std::endl;
       pending_sends[NI->rank][std::make_pair(dst, tag)].push_back(
           new SimSendCaller(
               this,
@@ -499,9 +502,7 @@ int Sys::sim_send(
     }
   }
   if (delay == 0) {
-    // std::cout<<"sim_send started"<<std::endl;
     NI->sim_send(buffer, count, type, dst, tag, request, msg_handler, fun_arg);
-    // std::cout<<"sim_send ended"<<std::endl;
   } else {
     try_register_event(
         new SimSendCaller(
@@ -530,10 +531,9 @@ int Sys::front_end_sim_send(
     sim_request* request,
     void (*msg_handler)(void* fun_arg),
     void* fun_arg) {
-  /*if(count<=0){
+  /*if(id==1){
     std::cout<<"send from: "<<id<<" to: "<<dst<<" at time: "<<boostedTick()
               <<" ,size: "<<count<<std::endl;
-    sys_panic("below zero send!");
   }*/
   if (rendezvous_enabled) {
     return rendezvous_sim_send(
@@ -614,11 +614,9 @@ int Sys::front_end_sim_recv(
     sim_request* request,
     void (*msg_handler)(void* fun_arg),
     void* fun_arg) {
-  /*if(count<=0){
-    std::cout<<"recv at: "<<id<<" expecting data from: "<<src<<" at time:
-  "<<boostedTick()
-    <<" ,size: "<<count<<std::endl;
-    sys_panic("below zero recv!");
+  /*if(id==1){
+    std::cout<<"recv at: "<<id<<" expecting data from: "<<src<<" at time: "
+              <<boostedTick()<<" ,size: "<<count<<std::endl;
   }*/
   if (rendezvous_enabled) {
     return rendezvous_sim_recv(
@@ -1778,9 +1776,12 @@ void Sys::handleEvent(void* arg) {
   } else if (event == EventType::PacketReceived) {
     RecvPacketEventHadndlerData* rcehd = (RecvPacketEventHadndlerData*)ehd;
     // std::cout<<"****************************handle event triggered for
-    // received packets! at node: "
-    //<<rcehd->owner->owner->id<<" at time: "<<Sys::boostedTick()<<" ,Tag:
-    //"<<rcehd->owner->stream_num<<std::endl;
+    /*if(rcehd->owner->owner->id==1){
+      std::cout<<
+          "received packets! at node: "<<rcehd->owner->owner->id<<" at time: "
+                <<Sys::boostedTick()<<" ,Tag:"
+                <<rcehd->owner->stream_num<<std::endl;
+    }*/
     rcehd->owner->consume(rcehd);
     delete rcehd;
   } else if (event == EventType::PacketSent) {
@@ -1794,22 +1795,24 @@ void Sys::handleEvent(void* arg) {
             .size() == 0) {
       is_there_pending_sends[rank][std::make_pair(
           sendhd->receiverNodeId, sendhd->tag)] = false;
+      /*if(rank==1) {
+        std::cout << "snet request serviced without any pending at node: "
+                  << rank << " sent to node: " << sendhd->receiverNodeId
+                  << " at time: " << Sys::boostedTick() << std::endl;
+      }*/
     } else {
-      // std::cout<<"here:
-      // "<<pending_sends[rank][std::make_pair(sendhd->receiverNodeId,sendhd->tag)].size()<<std::endl;
+      /*std::cout<<"Fetching a pending send request at node "<<rank<<
+      " to node "<<sendhd->receiverNodeId<<" tag: "<<sendhd->tag
+                <<" at time: "<<Sys::boostedTick()<<std::endl;*/
       SimSendCaller* simSendCaller =
           pending_sends[rank]
                        [std::make_pair(sendhd->receiverNodeId, sendhd->tag)]
                            .front();
       pending_sends[rank][std::make_pair(sendhd->receiverNodeId, sendhd->tag)]
           .pop_front();
-      // std::cout<<"hello"<<std::endl;
       simSendCaller->call(EventType::General, nullptr);
-      // std::cout<<"hi"<<std::endl;
     }
-    std::cout << "handle finished" << std::endl;
     delete sendhd;
-    std::cout << "handle deleted" << std::endl;
   }
 }
 timespec_t Sys::generate_time(int cycles) {
