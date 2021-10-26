@@ -469,7 +469,7 @@ int Sys::sim_send(
     sim_request* request,
     void (*msg_handler)(void* fun_arg),
     void* fun_arg) {
-  if (delay==0 && fun_arg == nullptr) {
+  if (delay == 0 && fun_arg == nullptr) {
     SendPacketEventHandlerData* fun_arg_tmp =
         new SendPacketEventHandlerData(NI->rank, dst, tag);
     fun_arg = (void*)fun_arg_tmp;
@@ -530,10 +530,10 @@ int Sys::front_end_sim_send(
     sim_request* request,
     void (*msg_handler)(void* fun_arg),
     void* fun_arg) {
-  if(true){
+  /*if(true){
     std::cout<<"send from: "<<id<<" to: "<<dst<<" at time: "<<boostedTick()
               <<" ,size: "<<count<<std::endl;
-  }
+  }*/
   if (rendezvous_enabled) {
     return rendezvous_sim_send(
         delay, buffer, count, type, dst, tag, request, msg_handler, fun_arg);
@@ -613,10 +613,10 @@ int Sys::front_end_sim_recv(
     sim_request* request,
     void (*msg_handler)(void* fun_arg),
     void* fun_arg) {
-  if(true){
+  /*if(true){
     std::cout<<"recv at: "<<id<<" expecting data from: "<<src<<" at time: "
               <<boostedTick()<<" ,size: "<<count<<std::endl;
-  }
+  }*/
   if (rendezvous_enabled) {
     return rendezvous_sim_recv(
         delay, buffer, count, type, src, tag, request, msg_handler, fun_arg);
@@ -1790,8 +1790,11 @@ void Sys::handleEvent(void* arg) {
     //<<sendhd->nodeId<<" at time: "<<Sys::boostedTick()<<" ,Tag:
     //"<<sendhd->tag<<std::endl;
     int rank = sendhd->nodeId;
-    if (pending_sends[rank].find(std::make_pair(sendhd->receiverNodeId, sendhd->tag))==pending_sends[rank].end() ||
-            pending_sends[rank][std::make_pair(sendhd->receiverNodeId, sendhd->tag)].size() == 0) {
+    if (pending_sends[rank].find(
+            std::make_pair(sendhd->receiverNodeId, sendhd->tag)) ==
+            pending_sends[rank].end() ||
+        pending_sends[rank][std::make_pair(sendhd->receiverNodeId, sendhd->tag)]
+                .size() == 0) {
       is_there_pending_sends[rank][std::make_pair(
           sendhd->receiverNodeId, sendhd->tag)] = false;
       /*if(rank==1) {
