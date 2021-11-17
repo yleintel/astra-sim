@@ -113,6 +113,9 @@ class Sys : public Callable {
   uint64_t pending_events;
   std::string method;
 
+  // Themis scheduler gap denominator
+  int gap_denominator;
+
   // for test
   Workload* workload;
   MemBus* memBus;

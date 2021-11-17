@@ -163,6 +163,8 @@ Sys::Sys(
   }
   all_generators[id] = this;
 
+  this->gap_denominator = 16;
+
   bool result = initialize_sys(my_sys);
 
   if (result == false) {
@@ -757,6 +759,9 @@ bool Sys::parse_var(std::string var, std::string value) {
     } else {
       this->seprate_log = true;
     }
+  } else if (var == "gap-denominator:") {
+    std::stringstream mval(value);
+    mval >> gap_denominator;
   } else if (var != "") {
     std::cerr
         << "######### Exiting because " << var
