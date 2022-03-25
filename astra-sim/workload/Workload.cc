@@ -787,7 +787,7 @@ void Workload::iterate_hybrid_parallel_Transformer() {
       layers[index]->issue_weight_grad_comm(
           SchedulingPolicy::FIFO, CollectiveBarrier::Non_Blocking);
     }
-    if (!layers[index]->is_input_grad_comm_finished_blocking()) {
+    if (!layers[index]->is_input_grad_comm_finished_blocking() || !layers[index]->is_weight_grad_comm_finished_blocking()) {
       // layers[index]->increment_waiting_for_ig();
       // generator->register_event(this, EventType::General, NULL, 1);
       return;
@@ -826,8 +826,7 @@ void Workload::iterate_hybrid_parallel_Transformer() {
     if (!collective_issued) {
       collective_issued = true;
       layers[index]->issue_input_grad_comm(
-          SchedulingPolicy::LIFO, CollectiveBarrier::Blocking);
-      return;
+          SchedulingPolicy::LIFO, CollectiveBarrier::Non_Blocking);
     }
     collective_issued = false;
     delay_loaded = false;
@@ -895,7 +894,7 @@ void Workload::iterate_hybrid_parallel_Transformer_fwd_in_bckwd() {
       layers[index]->issue_weight_grad_comm(
           SchedulingPolicy::FIFO, CollectiveBarrier::Non_Blocking);
     }
-    if (!layers[index]->is_input_grad_comm_finished_blocking()) {
+    if (!layers[index]->is_input_grad_comm_finished_blocking() || !layers[index]->is_weight_grad_comm_finished_blocking()) {
       // layers[index]->increment_waiting_for_ig();
       // generator->register_event(this, EventType::General, NULL, 1);
       return;
@@ -949,8 +948,7 @@ void Workload::iterate_hybrid_parallel_Transformer_fwd_in_bckwd() {
     if (!collective_issued) {
       collective_issued = true;
       layers[index]->issue_input_grad_comm(
-          SchedulingPolicy::LIFO, CollectiveBarrier::Blocking);
-      return;
+          SchedulingPolicy::LIFO, CollectiveBarrier::Non_Blocking);
     }
     checkpoint_initiated = false;
     collective_issued = false;
