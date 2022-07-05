@@ -91,6 +91,9 @@ Sys::~Sys() {
     delete workload;
   if (offline_greedy != nullptr)
     delete offline_greedy;
+  if (roofline_enabled) {
+    dealloc_roofline();
+  }
   bool shouldExit = true;
   for (auto& a : all_generators) {
     if (a != nullptr) {
@@ -158,6 +161,9 @@ Sys::Sys(
   this->active_chunks_per_dimension = 1;
   this->seprate_log = seprate_log;
   this->rendezvous_enabled = rendezvous_enabled;
+  this->roofline_enabled = false;
+  this->data_type_size = 2;
+  this->roofline = nullptr;
   if ((id + 1) > all_generators.size()) {
     all_generators.resize(id + 1);
   }
@@ -760,6 +766,21 @@ bool Sys::parse_var(std::string var, std::string value) {
     } else {
       this->seprate_log = true;
     }
+  } else if (var == "data-type-size:") {
+    std::stringstream mval(value);
+    mval >> data_type_size;
+  } else if (var == "roofline-bw:") {
+    alloc_roofline_if_not_allocated();
+    std::stringstream mval(value);
+    double bw;
+    mval >> bw;
+    roofline->set_bandwidth(bw);
+  } else if (var == "roofline-peak-perf:") {
+    alloc_roofline_if_not_allocated();
+    std::stringstream mval(value);
+    double peak_perf;
+    mval >> peak_perf;
+    roofline->set_peak_perf(peak_perf);
   } else if (var != "") {
     std::cerr
         << "######### Exiting because " << var
@@ -1761,5 +1782,17 @@ timespec_t Sys::generate_time(Tick cycles) {
   double addition = cycles * ((double)CLOCK_PERIOD);
   tmp.time_val = addition;
   return tmp;
+}
+void Sys::alloc_roofline_if_not_allocated() {
+  roofline_enabled = true;
+  if (roofline == nullptr) {
+    roofline = new Roofline;
+  }
+}
+void Sys::dealloc_roofline() {
+  if (roofline_enabled) {
+    delete roofline;
+    roofline_enabled = false;
+  }
 }
 } // namespace AstraSim
