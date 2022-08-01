@@ -60,11 +60,11 @@ Workload::Workload(
   this->total_rows = total_rows;
   this->run_name = run_name;
   this->registered_for_finished_streams = false;
-  if (generator->id == 0 && seprate_log) {
+  if ((generator->id%generator->total_nodes) == 0 && seprate_log) {
     std::cout << "stat path: " << path << " ,total rows: " << total_rows
               << " ,stat row: " << stat_row << std::endl;
-    detailed = new CSVWriter(path, "detailed.csv");
-    end_to_end = new CSVWriter(path, "EndToEnd.csv");
+    detailed = new CSVWriter(path, run_name + "_detailed.csv");
+    end_to_end = new CSVWriter(path, run_name + "_EndToEnd.csv");
     dimension_utilization =
         new CSVWriter(path, run_name + "_dimension_utilization.csv");
     if (stat_row == 0) {
@@ -162,7 +162,7 @@ void Workload::check_for_sim_end() {
       return;
     }
     if (generator->streams_finished == generator->streams_injected) {
-      if (generator->id == 0) {
+      if ((generator->id % generator->total_nodes) == 0) {
         report();
       }
       // std::cout<<"workload of node: "<<generator->id<<" has been

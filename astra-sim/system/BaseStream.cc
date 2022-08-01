@@ -64,10 +64,14 @@ void BaseStream::suspend_ready() {
   return;
 }
 void BaseStream::resume_ready(int st_num) {
-  if (suspended_streams[st_num].size() != (owner->all_generators.size() - 1)) {
+  //int total_streams = owner->all_generators.size() - 1;
+  //yle: critical changes to support multi-jobs
+  int total_streams = owner->total_nodes - 1;
+  if (suspended_streams[st_num].size() != total_streams) {
     return;
   }
-  int counter = owner->all_generators.size() - 1;
+  int counter = total_streams;
+  //end of critical changes to support multi-jobs
   for (int i = 0; i < counter; i++) {
     StreamBaseline* stream = (StreamBaseline*)suspended_streams[st_num].front();
     suspended_streams[st_num].pop_front();

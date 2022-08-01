@@ -43,11 +43,12 @@ Sys::~Sys() {
   end_sim_time = std::chrono::high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::minutes>(
       end_sim_time - start_sim_time);
-  if (id == 0) {
+  if (id%total_nodes == 0) {
     auto timenow =
         std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     std::cout << "*****" << std::endl
               << "Time to exit: " << ctime(&timenow)
+              << "Run name: " << workload->run_name <<std::endl
               << "all-reduce Collective implementation: "
               << inp_all_reduce_implementation << std::endl
               << "reduce-scatter Collective implementation: "
