@@ -40,6 +40,7 @@ BaseStream::BaseStream(
   priority = 0;
 }
 void BaseStream::declare_ready() {
+  return;
   ready_counter[stream_num]++;
   if (ready_counter[stream_num] == owner->total_nodes) {
     synchronizer[stream_num] = owner->total_nodes;
@@ -47,7 +48,8 @@ void BaseStream::declare_ready() {
   }
 }
 bool BaseStream::is_ready() {
-  return synchronizer[stream_num] > 0;
+  return true;
+  // return synchronizer[stream_num] > 0;
 }
 void BaseStream::consume_ready() {
   // std::cout<<"consume ready called!"<<std::endl;
@@ -56,6 +58,7 @@ void BaseStream::consume_ready() {
   resume_ready(stream_num);
 }
 void BaseStream::suspend_ready() {
+  return;
   if (suspended_streams.find(stream_num) == suspended_streams.end()) {
     std::list<BaseStream*> empty;
     suspended_streams[stream_num] = empty;
@@ -64,6 +67,7 @@ void BaseStream::suspend_ready() {
   return;
 }
 void BaseStream::resume_ready(int st_num) {
+    return;
   //int total_streams = owner->all_generators.size() - 1;
   //yle: critical changes to support multi-jobs
   int total_streams = owner->total_nodes - 1;
@@ -84,6 +88,7 @@ void BaseStream::resume_ready(int st_num) {
   return;
 }
 void BaseStream::destruct_ready() {
+    return;
   std::map<int, int>::iterator it;
   it = synchronizer.find(stream_num);
   synchronizer.erase(it);

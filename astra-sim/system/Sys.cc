@@ -1452,11 +1452,11 @@ void Sys::proceed_to_next_vnet_baseline(StreamBaseline* stream) {
               << " ,available synchronizer: "
               << stream->synchronizer[stream->stream_num] << std::endl;
   }*/
-  if (!stream->is_ready()) {
-    stream->suspend_ready();
-    return;
-  }
-  stream->consume_ready();
+  // if (!stream->is_ready()) {
+  //   stream->suspend_ready();
+  //   return;
+  // }
+  // stream->consume_ready();
   int previous_vnet = stream->current_queue_id;
   if (stream->steps_finished == 1) {
     first_phase_streams--;
@@ -1758,8 +1758,7 @@ void Sys::handleEvent(void* arg) {
   EventType event = ehd->event;
 
   if (event == EventType::CallEvents) {
-    // std::cout<<"handle event triggered at node: "<<id<<" for call events! at
-    // time: "<<Sys::boostedTick()<<std::endl;
+    // std::cout<<"handle event triggered at node: "<<id<<" for call events! at time: "<<Sys::boostedTick()<<std::endl;
     all_generators[id]->iterate();
     delete ehd;
   } else if (event == EventType::RendezvousSend) {
