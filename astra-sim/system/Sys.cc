@@ -470,7 +470,7 @@ int Sys::sim_send(
     sim_request* request,
     void (*msg_handler)(void* fun_arg),
     void* fun_arg) {
-  delay += (rand()%total_nodes)*1000;//(total_nodes - NI->rank)*1000; //microseconds
+  // delay += (rand()%total_nodes)*1000;//(total_nodes - NI->rank)*1000; //microseconds
   if (delay == 0 && fun_arg == nullptr) {
     SendPacketEventHandlerData* fun_arg_tmp =
         new SendPacketEventHandlerData(NI->rank, dst, tag);
